@@ -1,0 +1,62 @@
+---
+// Use static data fetching instead of runtime
+export const prerender = true;
+
+import { getAllApps } from '../services/appService';
+
+// Cache the data at build time
+const allApps = await getAllApps();
+const totalApps = allApps.length;
+
+const sevenDaysAgo = new Date();
+sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+const recentApps = allApps.filter(app => 
+  new Date(app.created_at!) > sevenDaysAgo
+).length;
+---
+
+<section class="relative overflow-hidden pt-24 pb-12 hero-section">
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center">
+      <!-- Stats badge -->
+      <div class="inline-flex items-center px-4 py-2 rounded-full 
+        bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm mb-8 
+        border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+        <span class="flex items-center gap-3 text-sm">
+          <span class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-primary/90 dark:text-primary/80" viewBox="0 0 24 24" fill="none">
+              <path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" fill="currentColor"/>
+            </svg>
+            <span class="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-500">
+              {totalApps} Curated Apps
+            </span>
+          </span>
+          {recentApps > 0 && (
+            <>
+              <span class="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600"></span>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 dark:bg-primary/20 rounded-full font-medium text-primary/90 dark:text-primary/80">
+                +{recentApps} new
+              </span>
+            </>
+          )}
+        </span>
+      </div>
+
+      <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
+        <span class="block">Discover the Best</span>
+        <span class="block text-indigo-600 dark:text-indigo-400">Mac Apps</span>
+      </h1>
+      
+      <p class="mt-6 max-w-md mx-auto text-base text-gray-500 dark:text-gray-400 sm:text-lg md:mt-8 md:text-xl md:max-w-3xl">
+        Curated collection of beautiful, native macOS apps that help you do more with your Mac.
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero-section {
+    position: relative;
+    z-index: 1;
+  }
+</style>

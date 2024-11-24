@@ -1,0 +1,52 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+
+const seoTitle = "About - Mac App Directory";
+const seoDescription = "Learn about our mission to curate the best Mac applications. Discover how we select and evaluate macOS apps to help users find the perfect tools for their needs.";
+---
+
+<PageLayout 
+  title={seoTitle}
+  description={seoDescription}
+  type="website"
+>
+  <div class="prose dark:prose-invert max-w-none">
+    <h1 class="text-4xl font-bold mb-8">About MacApps</h1>
+    
+    <div class="space-y-8">
+      <section>
+        <h2 class="text-2xl font-semibold mb-4">Our Mission</h2>
+        <p class="text-lg text-gray-600 dark:text-gray-300">
+          MacApps is dedicated to helping Mac users discover exceptional applications that enhance their daily workflow. We believe in the power of well-crafted software to transform how we work, create, and interact with our Macs.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-semibold mb-4">What We Do</h2>
+        <p class="text-lg text-gray-600 dark:text-gray-300 mb-4">
+          We carefully curate and showcase the finest Mac applications, focusing on:
+        </p>
+        <ul class="list-disc pl-6 space-y-2 text-gray-600 dark:text-gray-300">
+          <li>Native macOS applications that follow Apple's design guidelines</li>
+          <li>Tools that significantly improve productivity and creativity</li>
+          <li>Apps that offer excellent user experience and regular updates</li>
+          <li>Solutions that respect user privacy and security</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-semibold mb-4">Our Selection Process</h2>
+        <p class="text-lg text-gray-600 dark:text-gray-300 mb-4">
+          Each app in our directory goes through a thorough evaluation process, considering:
+        </p>
+        <ul class="list-disc pl-6 space-y-2 text-gray-600 dark:text-gray-300">
+          <li>Design quality and user interface consistency</li>
+          <li>Performance and resource efficiency</li>
+          <li>Value proposition and pricing fairness</li>
+          <li>Developer reputation and support quality</li>
+          <li>User feedback and community reception</li>
+        </ul>
+      </section>
+    </div>
+  </div>
+</PageLayout> 

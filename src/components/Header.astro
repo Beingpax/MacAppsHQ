@@ -1,0 +1,198 @@
+---
+import ThemeToggle from './ThemeToggle';
+---
+
+<header class="fixed top-0 left-0 right-0 z-40">
+  <!-- Backdrop -->
+  <div class="absolute inset-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl"></div>
+  
+  <!-- Border gradient -->
+  <div class="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r 
+    from-gray-200/0 via-gray-200 to-gray-200/0
+    dark:from-gray-800/0 dark:via-gray-800 dark:to-gray-800/0"></div>
+
+  <!-- Content -->
+  <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16 gap-4">
+      <!-- Logo -->
+      <a 
+        href="/" 
+        class="group flex items-center gap-3 px-4 py-2 rounded-xl
+          hover:-translate-y-0.5 transition-all duration-300
+          bg-gradient-to-br from-white to-gray-50
+          dark:from-gray-800 dark:to-gray-800/50
+          border border-gray-200/50 dark:border-gray-700/50
+          hover:border-primary/20 dark:hover:border-primary/20
+          hover:shadow-lg hover:shadow-primary/5 dark:hover:shadow-primary/10"
+      >
+        <div class="relative">
+          <div class="absolute inset-0 bg-primary/10 dark:bg-primary/20 rounded-lg blur-xl group-hover:blur-2xl transition-all duration-300"></div>
+          <svg 
+            class="relative w-6 h-6 text-primary dark:text-primary-light transform transition-transform duration-300 group-hover:scale-110" 
+            viewBox="0 0 24 24" 
+            fill="currentColor"
+          >
+            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+          </svg>
+        </div>
+        <span class="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r 
+          from-gray-900 via-primary to-gray-800
+          dark:from-white dark:via-primary-light dark:to-gray-200
+          transition-all duration-300">
+          MacApps
+        </span>
+      </a>
+
+      <!-- Navigation -->
+      <div class="flex items-center gap-2 sm:gap-4">
+        <!-- Desktop Navigation -->
+        <nav class="hidden sm:flex items-center gap-4">
+          <a 
+            href="/submit"
+            class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium
+              bg-gradient-to-b from-primary to-primary/90 
+              dark:from-primary-light dark:to-primary
+              text-white rounded-xl
+              hover:from-primary/95 hover:to-primary/85
+              dark:hover:from-primary-light/95 dark:hover:to-primary/95
+              transition-all duration-300
+              shadow-sm hover:shadow-md hover:shadow-primary/10 dark:hover:shadow-primary/20
+              hover:-translate-y-0.5
+              focus:ring-2 focus:ring-primary/20 dark:focus:ring-primary/30
+              group"
+          >
+            <svg 
+              class="w-4 h-4 transition-transform duration-300 group-hover:scale-110" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path 
+                stroke-linecap="round" 
+                stroke-linejoin="round" 
+                stroke-width="2" 
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            <span>Submit App</span>
+          </a>
+
+          <ThemeToggle client:load />
+        </nav>
+
+        <!-- Mobile Menu Button -->
+        <button
+          id="mobileMenuButton"
+          class="sm:hidden flex items-center justify-center w-10 h-10 rounded-xl
+            bg-white dark:bg-gray-800 
+            text-gray-500 dark:text-gray-400
+            hover:text-primary dark:hover:text-primary-light
+            border border-gray-200 dark:border-gray-700
+            hover:border-primary/20 dark:hover:border-primary/30
+            shadow-sm hover:shadow-md
+            transition-all duration-300"
+          aria-label="Menu"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path 
+              stroke-linecap="round" 
+              stroke-linejoin="round" 
+              stroke-width="2" 
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Menu (Initially Hidden) -->
+  <div 
+    id="mobileMenu"
+    class="hidden sm:hidden relative"
+  >
+    <div class="absolute inset-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl"></div>
+    
+    <div class="relative border-t border-gray-200 dark:border-gray-800">
+      <nav class="max-w-6xl mx-auto px-4 py-4 flex flex-col gap-2">
+        <a 
+          href="/submit"
+          class="flex items-center gap-2 px-4 py-3 rounded-xl
+            text-gray-600 dark:text-gray-300
+            hover:text-primary dark:hover:text-primary-light
+            hover:bg-gray-50 dark:hover:bg-gray-800/50
+            transition-colors duration-200"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path 
+              stroke-linecap="round" 
+              stroke-linejoin="round" 
+              stroke-width="2" 
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+          <span class="font-medium">Submit App</span>
+        </a>
+
+        <div class="px-4 py-2">
+          <ThemeToggle client:load />
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<script>
+  const mobileMenuButton = document.getElementById('mobileMenuButton');
+  const mobileMenu = document.getElementById('mobileMenu');
+  let isMenuOpen = false;
+
+  function toggleMenu() {
+    isMenuOpen = !isMenuOpen;
+    if (mobileMenu) {
+      mobileMenu.classList.toggle('hidden', !isMenuOpen);
+    }
+  }
+
+  // Toggle menu on button click
+  mobileMenuButton?.addEventListener('click', toggleMenu);
+
+  // Close menu when clicking outside
+  document.addEventListener('click', (e) => {
+    if (isMenuOpen && 
+        !mobileMenu?.contains(e.target as Node) && 
+        !mobileMenuButton?.contains(e.target as Node)) {
+      toggleMenu();
+    }
+  });
+
+  // Close menu on escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isMenuOpen) {
+      toggleMenu();
+    }
+  });
+
+  // Handle resize
+  window.addEventListener('resize', () => {
+    if (window.innerWidth >= 640 && isMenuOpen) { // 640px is sm breakpoint
+      toggleMenu();
+    }
+  });
+</script>
+
+<style>
+  :global(body) {
+    padding-top: 4rem;
+  }
+
+  /* Add smooth shadow transition for the header */
+  header {
+    transition: box-shadow 0.3s ease;
+  }
+
+  /* Add shadow when scrolling */
+  :global(html:not([data-scroll='0']) header) {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  }
+</style>

@@ -1,0 +1,79 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+
+const seoTitle = "Terms of Service - Mac App Directory";
+const seoDescription = "Read our terms of service to understand the guidelines and policies for using our Mac app directory platform.";
+---
+
+<PageLayout 
+  title={seoTitle}
+  description={seoDescription}
+  type="website"
+>
+  <div class="prose dark:prose-invert max-w-none">
+    <h1 class="text-4xl font-bold mb-8">Terms of Service</h1>
+    
+    <div class="space-y-8">
+      <section>
+        <p class="text-lg text-gray-600 dark:text-gray-300">
+          Last updated: {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-semibold mb-4">1. Acceptance of Terms</h2>
+        <p class="text-lg text-gray-600 dark:text-gray-300">
+          By accessing and using MacApps, you agree to be bound by these Terms of Service and all applicable laws and regulations.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-semibold mb-4">2. App Listings</h2>
+        <ul class="list-disc pl-6 space-y-2 text-gray-600 dark:text-gray-300">
+          <li>We reserve the right to accept, reject, or remove any app submission</li>
+          <li>All submitted information must be accurate and up-to-date</li>
+          <li>Developers are responsible for maintaining their app listings</li>
+          <li>We may modify listings to maintain consistency and quality</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-semibold mb-4">3. User Responsibilities</h2>
+        <ul class="list-disc pl-6 space-y-2 text-gray-600 dark:text-gray-300">
+          <li>Use the service for its intended purpose</li>
+          <li>Do not attempt to manipulate or abuse the system</li>
+          <li>Respect intellectual property rights</li>
+          <li>Provide accurate information when submitting apps</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-semibold mb-4">4. Intellectual Property</h2>
+        <p class="text-lg text-gray-600 dark:text-gray-300">
+          All content on MacApps, including but not limited to text, graphics, logos, and software, is protected by intellectual property rights and may not be used without permission.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-semibold mb-4">5. Disclaimer</h2>
+        <p class="text-lg text-gray-600 dark:text-gray-300">
+          MacApps is provided "as is" without warranties of any kind. We are not responsible for the content, functionality, or support of listed applications.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-semibold mb-4">6. Changes to Terms</h2>
+        <p class="text-lg text-gray-600 dark:text-gray-300">
+          We reserve the right to modify these terms at any time. Continued use of the service constitutes acceptance of updated terms.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-semibold mb-4">Contact</h2>
+        <p class="text-lg text-gray-600 dark:text-gray-300">
+          For questions about these terms, please reach out to us on Twitter @joshipax.
+        </p>
+      </section>
+    </div>
+  </div>
+</PageLayout> 

@@ -1,0 +1,302 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { getAllApps } from '../services/appService';
+import type { App } from '../data/apps';
+import { renderMarkdown, sanitizeHtml } from '../services/markdownService';
+
+export async function getStaticPaths() {
+  const allApps = await getAllApps();
+  
+  return allApps.map(app => {
+    const relatedApps = app.related_apps 
+      ? allApps.filter(a => app.related_apps?.includes(a.slug))
+      : [];
+
+    const sameCategory = allApps.filter(a => 
+      a.category === app.category && 
+      a.id !== app.id && 
+      !app.related_apps?.includes(a.id)
+    );
+    
+    const moreFromCategory = sameCategory
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 5);
+
+    return {
+      params: { slug: app.slug },
+      props: { app, relatedApps, moreFromCategory }
+    };
+  });
+}
+
+interface Props {
+  app: App;
+  relatedApps: App[];
+  moreFromCategory: App[];
+}
+
+const { app, relatedApps, moreFromCategory } = Astro.props;
+
+// Process markdown content
+const processedContent = app.description_md 
+  ? await sanitizeHtml(renderMarkdown(app.description_md))
+  : null;
+---
+
+<Layout title={`${app.name} - Mac App Directory`}>
+  <Header />
+  
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- Back Button -->
+    <a 
+      href="/" 
+      class="inline-flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors mb-8"
+    >
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      <span class="text-sm">Back to Apps</span>
+    </a>
+
+    <!-- Main App Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+      <!-- App Header -->
+      <div class="p-6 sm:p-8 border-b border-gray-200/50 dark:border-gray-700/50">
+        <div class="flex flex-col sm:flex-row gap-6 sm:gap-8">
+          <!-- App Icon -->
+          <div class="relative flex-shrink-0">
+            <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-purple-500/5 dark:from-primary/10 dark:to-purple-500/10 rounded-2xl blur-xl"></div>
+            <img 
+              src={app.icon} 
+              alt={app.name} 
+              class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl shadow-lg ring-1 ring-gray-900/5 dark:ring-white/10" 
+            />
+          </div>
+
+          <!-- App Info -->
+          <div class="flex-1 min-w-0">
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+              {app.name}
+            </h1>
+            <p class="mt-1 text-lg text-gray-600 dark:text-gray-400">
+              {app.developer}
+            </p>
+            <div class="flex flex-wrap gap-2 mt-4">
+              <span class="px-3 py-1 text-sm rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                {app.category}
+              </span>
+              {app.featured && (
+                <span class="px-3 py-1 text-sm rounded-full bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light">
+                  Featured
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <p class="mt-6 text-gray-600 dark:text-gray-300 text-base sm:text-lg leading-relaxed">
+          {app.description}
+        </p>
+      </div>
+
+      <!-- Pricing Section -->
+      <div class="p-4">
+        <div class="relative overflow-hidden rounded-xl
+          bg-gradient-to-br from-white via-gray-50/95 to-gray-100/90
+          dark:from-gray-800 dark:via-gray-800/95 dark:to-gray-900/90
+          border border-gray-200/50 dark:border-gray-700/30
+          shadow-[0_4px_24px_-1px_rgba(0,0,0,0.04)]
+          dark:shadow-[0_4px_24px_-1px_rgba(0,0,0,0.24)]"
+        >
+          <!-- Subtle background elements -->
+          <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(120,120,120,0.05)_0%,transparent_50%)]"></div>
+          <div class="absolute -left-16 -top-16 w-48 h-48 bg-blue-500/5 dark:bg-blue-400/5 rounded-full blur-2xl"></div>
+          
+          <!-- Content -->
+          <div class="relative p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <!-- Price Info -->
+            <div class="flex flex-col items-center sm:items-start gap-2">
+              <span class={`
+                inline-flex px-3 py-1 rounded-full text-sm font-medium
+                backdrop-blur-sm
+                ${app.price === 'Free' 
+                  ? 'bg-green-100/90 text-green-700 dark:bg-green-900/50 dark:text-green-300 ring-1 ring-green-200/50 dark:ring-green-500/30'
+                  : app.price === 'Freemium' 
+                    ? 'bg-blue-100/90 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 ring-1 ring-blue-200/50 dark:ring-blue-500/30'
+                    : 'bg-gray-100/90 text-gray-700 dark:bg-gray-800/50 dark:text-gray-300 ring-1 ring-gray-200/50 dark:ring-gray-600/30'
+                }
+                shadow-sm`}>
+                {app.price}
+              </span>
+              
+              <div class="flex items-center gap-2">
+                {app.pricing_details && (
+                  <span class="text-xl sm:text-2xl font-bold bg-clip-text text-transparent 
+                    bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900
+                    dark:from-white dark:via-gray-200 dark:to-white">
+                    {app.pricing_details}
+                  </span>
+                )}
+                {app.pricing_model && app.pricing_model !== 'None' && (
+                  <span class="text-sm text-gray-500 dark:text-gray-400">
+                    {app.pricing_model === 'One-time' ? 'one time payment' : 'subscription payment'}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <!-- Download Button -->
+            <a
+              href={app.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="group flex items-center gap-2 px-5 py-2.5
+                bg-gradient-to-b from-gray-900 to-black dark:from-white dark:to-gray-200
+                hover:from-black hover:to-gray-900 dark:hover:from-gray-200 dark:hover:to-white
+                text-white dark:text-gray-900 rounded-lg
+                transition-all duration-300
+                shadow-lg shadow-gray-950/10 dark:shadow-white/10
+                hover:shadow-xl hover:shadow-gray-950/20 dark:hover:shadow-white/20
+                transform hover:-translate-y-0.5
+                font-medium text-sm
+                border border-gray-950/10 dark:border-white/10"
+            >
+              <svg viewBox="0 0 24 24" class="w-4 h-4 transition-transform duration-300 group-hover:scale-110" fill="currentColor">
+                <path d="M17.0391 12.7488C17.0247 9.86714 19.3741 8.37352 19.4961 8.30434C18.2285 6.49489 16.2275 6.19649 15.5077 6.17273C13.7614 5.9885 12.0632 7.16171 11.1733 7.16171C10.2644 7.16171 8.87445 6.19251 7.40147 6.22425C5.47168 6.25598 3.68747 7.34296 2.71303 9.0487C0.70024 12.5351 2.19385 17.6491 4.12364 20.4829C5.09013 21.8649 6.22122 23.4109 7.71881 23.3553C9.17786 23.2956 9.73332 22.4375 11.4916 22.4375C13.2299 22.4375 13.7455 23.3553 15.2682 23.3195C16.8301 23.2956 17.8257 21.9215 18.7604 20.5277C19.8755 18.9221 20.3236 17.3443 20.3396 17.2609C20.3037 17.2489 17.0571 16.0598 17.0391 12.7488Z"/>
+                <path d="M14.4831 4.16735C15.2766 3.19291 15.8201 1.85483 15.6771 0.5C14.5142 0.553612 13.0989 1.26518 12.2735 2.21586C11.5358 3.05797 10.8877 4.43791 11.0467 5.75223C12.3451 5.85119 13.6673 5.14179 14.4831 4.16735Z"/>
+              </svg>
+              <span>Download Now</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Markdown Content -->
+      {processedContent && (
+        <div class="p-6 sm:p-8">
+          <div class="prose prose-lg dark:prose-invert max-w-none">
+            <div set:html={processedContent} />
+          </div>
+        </div>
+      )}
+    </div>
+
+    <!-- Related Apps Section -->
+    {relatedApps.length > 0 && (
+      <div class="mt-12">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Related Apps</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {relatedApps.map(relatedApp => (
+            <a 
+              href={`/${relatedApp.slug}`}
+              class="group flex items-center gap-4 p-4 rounded-xl
+                bg-gradient-to-br from-blue-50/50 via-white to-purple-50/50
+                dark:from-blue-900/10 dark:via-gray-800 dark:to-purple-900/10
+                border border-blue-200/50 dark:border-blue-500/20
+                hover:border-blue-300/70 dark:hover:border-blue-400/30
+                shadow-sm hover:shadow-md
+                transition-all duration-300 hover:-translate-y-0.5
+                relative overflow-hidden"
+            >
+              <div class="absolute inset-0 bg-gradient-to-br from-blue-400/0 via-primary/0 to-purple-400/0 
+                group-hover:from-blue-400/5 group-hover:via-primary/5 group-hover:to-purple-400/5
+                dark:group-hover:from-blue-400/10 dark:group-hover:via-primary/10 dark:group-hover:to-purple-400/10
+                transition-opacity duration-300"></div>
+              
+              <img 
+                src={relatedApp.icon} 
+                alt={relatedApp.name} 
+                class="relative w-12 h-12 rounded-xl shadow-sm 
+                  group-hover:scale-105 group-hover:shadow-md
+                  transition-all duration-300
+                  ring-1 ring-black/5 dark:ring-white/10" 
+              />
+              <div class="min-w-0 relative">
+                <h3 class="font-medium text-gray-900 dark:text-white truncate group-hover:text-primary dark:group-hover:text-primary-light transition-colors">
+                  {relatedApp.name}
+                </h3>
+                <span class={`
+                  inline-block text-sm px-2.5 py-0.5 rounded-full mt-1
+                  transition-colors duration-300
+                  ${relatedApp.price === 'Free' 
+                    ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 ring-1 ring-green-200/50 dark:ring-green-500/30'
+                    : relatedApp.price === 'Freemium' 
+                      ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 ring-1 ring-blue-200/50 dark:ring-blue-500/30'
+                      : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 ring-1 ring-gray-200/50 dark:ring-gray-600/30'
+                  }
+                `}>
+                  {relatedApp.price}
+                </span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- More Apps Section -->
+    {moreFromCategory.length > 0 && (
+      <div class="mt-12">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">More {app.category} Apps</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {moreFromCategory.map(categoryApp => (
+            <a 
+              href={`/${categoryApp.slug}`}
+              class="group flex items-center gap-4 p-4 rounded-xl
+                bg-gradient-to-br from-gray-50/80 via-white to-gray-50/80
+                dark:from-gray-800/60 dark:via-gray-800/80 dark:to-gray-800/60
+                border border-gray-200/60 dark:border-gray-700/50
+                hover:border-gray-300/80 dark:hover:border-gray-600/50
+                shadow-sm hover:shadow-md
+                transition-all duration-300 hover:-translate-y-0.5
+                relative overflow-hidden"
+            >
+              <div class="absolute inset-0 bg-gradient-to-br from-gray-400/0 via-gray-400/0 to-gray-400/0 
+                group-hover:from-gray-400/5 group-hover:via-gray-400/5 group-hover:to-gray-400/5
+                dark:group-hover:from-gray-400/10 dark:group-hover:via-gray-400/10 dark:group-hover:to-gray-400/10
+                transition-opacity duration-300"></div>
+              
+              <img 
+                src={categoryApp.icon} 
+                alt={categoryApp.name} 
+                class="relative w-12 h-12 rounded-xl shadow-sm 
+                  group-hover:scale-105 group-hover:shadow-md
+                  transition-all duration-300
+                  ring-1 ring-black/5 dark:ring-white/10" 
+              />
+              <div class="min-w-0 relative">
+                <h3 class="font-medium text-gray-900 dark:text-white truncate group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
+                  {categoryApp.name}
+                </h3>
+                <span class={`
+                  inline-block text-sm px-2.5 py-0.5 rounded-full mt-1
+                  transition-colors duration-300
+                  ${categoryApp.price === 'Free' 
+                    ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 ring-1 ring-green-200/50 dark:ring-green-500/30'
+                    : categoryApp.price === 'Freemium' 
+                      ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 ring-1 ring-blue-200/50 dark:ring-blue-500/30'
+                      : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 ring-1 ring-gray-200/50 dark:ring-gray-600/30'
+                  }
+                `}>
+                  {categoryApp.price}
+                </span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+  </main>
+
+  <Footer />
+</Layout> 
+
+<style>
+  .bg-grid-pattern {
+    background-image: radial-gradient(circle at 1px 1px, currentColor 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+</style> 

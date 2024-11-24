@@ -1,0 +1,45 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  type?: string;
+}
+
+const { 
+  title, 
+  description, 
+  image = '/og-image.jpg',
+  type = 'website'
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!-- Basic Meta Tags -->
+<title>{title}</title>
+<meta name="description" content={description}>
+<link rel="canonical" href={canonicalURL}>
+
+<!-- Open Graph -->
+<meta property="og:type" content={type}>
+<meta property="og:url" content={canonicalURL}>
+<meta property="og:title" content={title}>
+<meta property="og:description" content={description}>
+<meta property="og:image" content={image}>
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content={title}>
+<meta name="twitter:description" content={description}>
+<meta name="twitter:image" content={image}>
+
+<!-- Structured Data -->
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Mac App Directory",
+    "url": "https://macapps.example.com"
+  }
+</script> 

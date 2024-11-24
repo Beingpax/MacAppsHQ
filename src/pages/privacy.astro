@@ -1,0 +1,67 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+
+const seoTitle = "Privacy Policy - Mac App Directory";
+const seoDescription = "Our commitment to your privacy. Learn how we handle and protect your data when using our Mac app directory service.";
+---
+
+<PageLayout 
+  title={seoTitle}
+  description={seoDescription}
+  type="website"
+>
+  <div class="prose dark:prose-invert max-w-none">
+    <h1 class="text-4xl font-bold mb-8">Privacy Policy</h1>
+    
+    <div class="space-y-8">
+      <section>
+        <p class="text-lg text-gray-600 dark:text-gray-300">
+          Last updated: {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-semibold mb-4">Information We Collect</h2>
+        <p class="text-lg text-gray-600 dark:text-gray-300 mb-4">
+          We collect minimal information to provide and improve our service:
+        </p>
+        <ul class="list-disc pl-6 space-y-2 text-gray-600 dark:text-gray-300">
+          <li>Usage analytics (page views, search queries, interaction patterns)</li>
+          <li>App submission information (developer contact details, app details)</li>
+          <li>Technical data (browser type, device information, cookies)</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-semibold mb-4">How We Use Your Information</h2>
+        <ul class="list-disc pl-6 space-y-2 text-gray-600 dark:text-gray-300">
+          <li>To maintain and improve our directory</li>
+          <li>To process and display app submissions</li>
+          <li>To analyze user behavior and optimize user experience</li>
+          <li>To communicate with developers about their submissions</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-semibold mb-4">Data Security</h2>
+        <p class="text-lg text-gray-600 dark:text-gray-300">
+          We implement industry-standard security measures to protect your information. All data is encrypted in transit and at rest, and we regularly review our security practices.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-semibold mb-4">Third-Party Services</h2>
+        <p class="text-lg text-gray-600 dark:text-gray-300">
+          We use trusted third-party services for analytics and hosting. These services may collect anonymous usage data subject to their own privacy policies.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-semibold mb-4">Contact Us</h2>
+        <p class="text-lg text-gray-600 dark:text-gray-300">
+          If you have any questions about our privacy practices, please contact us on Twitter @joshipax.
+        </p>
+      </section>
+    </div>
+  </div>
+</PageLayout> 

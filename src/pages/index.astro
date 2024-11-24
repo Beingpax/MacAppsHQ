@@ -1,0 +1,300 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import Footer from '../components/Footer.astro';
+import AppCard from '../components/AppCard.astro';
+import AppFilters from '../components/AppFilters.astro';
+import { getAllApps } from '../services/appService';
+import AppCardSkeleton from '../components/AppCardSkeleton.astro';
+
+const allApps = await getAllApps();
+
+const featuredApps = allApps.filter(app => app.featured)
+  .sort((a, b) => (a.sort_order || 999) - (b.sort_order || 999));
+
+const regularApps = allApps.filter(app => !app.featured)
+  .sort((a, b) => (a.sort_order || 999) - (b.sort_order || 999));
+
+const newAppsCount = regularApps.filter(app => 
+  new Date(app.created_at!) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+).length;
+---
+
+<Layout title="Mac App Directory">
+  <Header />
+  <Hero />
+  
+  <main class="max-w-6xl mx-auto px-6 sm:px-8 pt-4 pb-8">
+    <AppFilters totalApps={regularApps.length} newAppsCount={newAppsCount} />
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      <!-- Featured apps section (always visible) -->
+      {featuredApps.map(app => (
+        <div class="featured-app opacity-100 transform-none">
+          <AppCard app={app} />
+        </div>
+      ))}
+      
+      <!-- Regular apps section -->
+      <div class="contents col-span-full">
+        <!-- Loading Skeletons (only for regular apps) -->
+        <div id="skeleton-container" class="contents">
+          {[...Array(6)].map(() => (
+            <AppCardSkeleton />
+          ))}
+        </div>
+
+        <!-- Regular apps (initially hidden) -->
+        <div id="regular-apps-container" class="contents opacity-0">
+          {regularApps.map(app => (
+            <div 
+              class="regular-app transform-gpu transition-all duration-500 opacity-0 translate-y-4"
+              data-sort-order={app.sort_order || 999}
+            >
+              <AppCard app={app} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+</Layout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // No need to animate featured apps as they're already visible
+    
+    // Handle regular apps loading
+    setTimeout(() => {
+      const skeletonContainer = document.getElementById('skeleton-container');
+      const regularContainer = document.getElementById('regular-apps-container');
+
+      if (skeletonContainer && regularContainer) {
+        // Fade out skeletons
+        skeletonContainer.style.opacity = '0';
+        
+        // After skeleton fade-out, show regular apps
+        setTimeout(() => {
+          skeletonContainer.style.display = 'none';
+          regularContainer.style.opacity = '1';
+
+          // Animate each regular app card
+          document.querySelectorAll('.regular-app').forEach((card, index) => {
+            setTimeout(() => {
+              requestAnimationFrame(() => {
+                card.classList.remove('opacity-0', 'translate-y-4');
+                card.classList.add('opacity-100', 'translate-y-0');
+              });
+            }, index * 100);
+          });
+        }, 300);
+      }
+    }, 800);
+  });
+
+  class AppFilterManager {
+    private container: HTMLElement | null;
+    private allCards: HTMLElement[];
+    private currentFilter: string = 'all';
+    private isAnimating: boolean = false;
+    
+    constructor() {
+      this.container = document.getElementById('regular-apps-container');
+      this.allCards = Array.from(document.querySelectorAll('.regular-app'));
+      this.init();
+    }
+
+    private init() {
+      this.showInitialState();
+      this.listenToFilterChanges();
+    }
+
+    private showInitialState() {
+      this.allCards.forEach((card, index) => {
+        requestAnimationFrame(() => {
+          card.style.transition = `all 0.5s cubic-bezier(0.4, 0, 0.2, 1) ${index * 50}ms`;
+          card.style.opacity = '1';
+          card.style.transform = 'translateY(0)';
+        });
+      });
+    }
+
+    private listenToFilterChanges() {
+      document.addEventListener('filterChanged', ((e: CustomEvent) => {
+        const { filter, searchQuery } = e.detail;
+        
+        if (this.isAnimating) return;
+        
+        this.currentFilter = filter;
+        this.handleFilterChange(filter, searchQuery);
+      }) as EventListener);
+    }
+
+    private async handleFilterChange(filter: string, searchQuery: string = '') {
+      this.isAnimating = true;
+
+      let visibleCards: HTMLElement[];
+
+      switch (filter) {
+        case 'search':
+          visibleCards = this.handleSearch(searchQuery);
+          break;
+        case 'latest':
+          visibleCards = this.getLatestApps();
+          break;
+        case 'all':
+        default:
+          visibleCards = [...this.allCards];
+          break;
+      }
+
+      visibleCards = this.sortCards(visibleCards, filter);
+      await this.updateDisplay(visibleCards);
+      
+      setTimeout(() => {
+        this.isAnimating = false;
+      }, 350);
+    }
+
+    private sortCards(cards: HTMLElement[], filter: string): HTMLElement[] {
+      return cards.sort((a, b) => {
+        const aCard = a.querySelector('.app-card');
+        const bCard = b.querySelector('.app-card');
+        if (!aCard || !bCard) return 0;
+
+        if (filter === 'latest') {
+          const aDate = new Date(aCard.getAttribute('data-created-at') || '');
+          const bDate = new Date(bCard.getAttribute('data-created-at') || '');
+          return bDate.getTime() - aDate.getTime(); // Most recent first
+        } else {
+          const aOrder = parseInt(aCard.getAttribute('data-sort-order') || '999');
+          const bOrder = parseInt(bCard.getAttribute('data-sort-order') || '999');
+          return aOrder - bOrder; // Sort by order for all and search
+        }
+      });
+    }
+
+    private async updateDisplay(visibleCards: HTMLElement[]) {
+      if (!this.container) return;
+
+      this.container.innerHTML = '';
+
+      if (visibleCards.length === 0) {
+        const noResults = document.createElement('div');
+        noResults.className = 'col-span-full text-center py-8 text-gray-500 dark:text-gray-400';
+        noResults.textContent = 'No apps found';
+        this.container.appendChild(noResults);
+        return;
+      }
+
+      visibleCards.forEach(card => {
+        card.style.transition = 'none';
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(10px)';
+        this.container?.appendChild(card);
+      });
+
+      this.container.offsetHeight;
+
+      requestAnimationFrame(() => {
+        visibleCards.forEach(card => {
+          card.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+          card.style.opacity = '1';
+          card.style.transform = 'translateY(0)';
+        });
+      });
+    }
+
+    private handleSearch(query: string): HTMLElement[] {
+      if (!query.trim()) return [...this.allCards];
+
+      const searchTerms = query.toLowerCase().trim().split(/\s+/);
+      return this.allCards.filter(card => {
+        const appCard = card.querySelector('.app-card');
+        if (!appCard) return false;
+
+        const searchableText = [
+          appCard.getAttribute('data-app-name'),
+          appCard.getAttribute('data-app-description'),
+          appCard.getAttribute('data-app-category')
+        ].map(text => text?.toLowerCase() || '').join(' ');
+
+        return searchTerms.every(term => searchableText.includes(term));
+      });
+    }
+
+    private getLatestApps(): HTMLElement[] {
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      return this.allCards.filter(card => {
+        const appCard = card.querySelector('.app-card');
+        if (!appCard) return false;
+
+        const createdAt = appCard.getAttribute('data-created-at');
+        if (!createdAt) return false;
+
+        return new Date(createdAt) > sevenDaysAgo;
+      });
+    }
+  }
+
+  // Initialize AppFilterManager only after initial loading animation is complete
+  setTimeout(() => {
+    new AppFilterManager();
+  }, 1200); // Increased delay to ensure initial animation is complete
+</script>
+
+<style>
+  .featured-app {
+    transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+  }
+
+  .regular-app {
+    transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+  }
+
+  #regular-apps-container {
+    transition: opacity 0.5s ease-in-out;
+  }
+
+  #skeleton-container {
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  .contents {
+    display: contents;
+  }
+
+  @keyframes blob {
+    0% {
+      transform: translate(0px, 0px) scale(1);
+    }
+    33% {
+      transform: translate(30px, -50px) scale(1.1);
+    }
+    66% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
+    100% {
+      transform: translate(0px, 0px) scale(1);
+    }
+  }
+
+  .animate-blob {
+    animation: blob 7s infinite;
+  }
+
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+
+  .bg-grid-pattern {
+    background-image: linear-gradient(to right, rgba(128, 128, 128, 0.1) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(128, 128, 128, 0.1) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+</style>

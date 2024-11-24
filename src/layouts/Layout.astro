@@ -1,0 +1,146 @@
+---
+import Preload from '../components/Preload.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { 
+  title, 
+  description = "Discover the best Mac apps curated just for you."
+} = Astro.props;
+
+// Define critical resources
+const criticalResources = [
+  { path: '/styles/critical.css', type: 'style' },
+  { path: '/fonts/inter-var.woff2', type: 'font' }
+] as const;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+
+    <!-- Critical CSS -->
+    <style is:inline>
+      /* Inline critical styles to avoid FOUC */
+      :root { --primary: #007AFF; --primary-light: #409CFF; }
+      .dark { color-scheme: dark; }
+      body { margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    </style>
+    
+    <!-- Link to external critical.css -->
+    <link rel="stylesheet" href="/styles/critical.css" />
+
+    <!-- Theme initialization script -->
+    <script is:inline>
+      (function() {
+        const theme = localStorage.getItem('theme') || 
+          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.classList[theme === 'dark' ? 'add' : 'remove']('dark');
+      })();
+    </script>
+
+    <!-- Preload essential resources -->
+    <Preload />
+    
+    <!-- Preconnect to external domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Cache control -->
+    <meta http-equiv="Cache-Control" content="public, max-age=31536000" />
+    
+    <!-- Enable instant navigation -->
+    <script>
+      let lastNavigationTimestamp = 0;
+      
+      document.addEventListener('click', e => {
+        const target = e.target as HTMLElement;
+        const link = target.closest('a');
+        
+        if (!link || !link.href || link.target || e.ctrlKey || e.shiftKey || e.altKey || e.metaKey) return;
+        
+        const now = Date.now();
+        if (now - lastNavigationTimestamp < 1000) return;
+        lastNavigationTimestamp = now;
+
+        const url = new URL(link.href);
+        if (url.origin === window.location.origin) {
+          e.preventDefault();
+          window.location.href = url.href;
+        }
+      });
+
+      window.addEventListener('popstate', () => {
+        window.location.reload();
+      });
+    </script>
+
+    <!-- Add preload hints for critical resources -->
+    {criticalResources.map(resource => (
+      <link 
+        rel="preload" 
+        href={resource.path} 
+        as={resource.type}
+        crossorigin={resource.type === 'font' ? 'anonymous' : undefined}
+      />
+    ))}
+
+    <!-- Prefetch templates for dynamic content -->
+    <link rel="prefetch" href="/api/apps" />
+
+    <!-- Resource hints -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+
+    <!-- Performance monitoring -->
+    <script is:inline>
+      // Simple performance monitoring
+      window.performance.mark('app-start');
+      
+      // Report performance metrics
+      window.addEventListener('load', () => {
+        window.performance.mark('app-loaded');
+        const measurement = window.performance.measure('app-lifecycle', 'app-start', 'app-loaded');
+        console.log(`App loaded in: ${measurement.duration}ms`);
+      });
+    </script>
+
+    <!-- DNS prefetch for external resources -->
+    <link rel="dns-prefetch" href="https://jiqwzyhhornwmmwyxkgz.supabase.co">
+    
+    <!-- Preload critical fonts -->
+    <link 
+      rel="preload" 
+      href="/fonts/inter-var.woff2" 
+      as="font" 
+      type="font/woff2" 
+      crossorigin
+    >
+    
+    <!-- Add module preload for critical JavaScript -->
+    <link rel="modulepreload" href="/src/utils/debounce.ts">
+
+    <!-- Add key resource hints -->
+    <link rel="preconnect" href={import.meta.env.PUBLIC_SUPABASE_URL}>
+    <link rel="dns-prefetch" href={import.meta.env.PUBLIC_SUPABASE_URL}>
+    
+    <!-- Preload critical CSS -->
+    <link 
+      rel="preload" 
+      href="/styles/critical.css" 
+      as="style"
+    >
+  </head>
+  <body class="bg-gray-50 dark:bg-gray-900">
+    <slot />
+  </body>
+</html>

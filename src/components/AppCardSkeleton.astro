@@ -1,0 +1,70 @@
+---
+interface Props {
+  featured?: boolean;
+}
+
+const { featured } = Astro.props;
+---
+
+<div class={`block w-full animate-pulse transition-all duration-300
+  ${featured 
+    ? 'p-6 bg-gray-100/80 dark:bg-gray-800/50 rounded-2xl'
+    : 'p-5 bg-gray-50/80 dark:bg-gray-800/30 rounded-xl'
+  }`}
+>
+  <div class="flex gap-5">
+    <!-- Icon Skeleton -->
+    <div class={`flex-shrink-0 rounded-xl bg-gray-200/80 dark:bg-gray-700/80
+      ${featured ? 'w-16 h-16' : 'w-14 h-14'}`}
+    ></div>
+
+    <div class="flex-1 space-y-3">
+      <!-- Title Skeleton -->
+      <div class="h-6 bg-gray-200/80 dark:bg-gray-700/80 rounded-md w-3/4"></div>
+      
+      <!-- Category Skeleton -->
+      <div class="h-5 bg-gray-200/80 dark:bg-gray-700/80 rounded-full w-1/4"></div>
+      
+      <!-- Description Skeleton -->
+      <div class="space-y-2">
+        <div class="h-4 bg-gray-200/80 dark:bg-gray-700/80 rounded w-full"></div>
+        <div class="h-4 bg-gray-200/80 dark:bg-gray-700/80 rounded w-5/6"></div>
+      </div>
+    </div>
+
+    <!-- Price Badge Skeleton -->
+    <div class="flex-shrink-0">
+      <div class="h-7 bg-gray-200/80 dark:bg-gray-700/80 rounded-full w-20"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  .animate-pulse {
+    background: linear-gradient(
+      90deg,
+      rgba(var(--shimmer-color), 0.1) 25%,
+      rgba(var(--shimmer-color), 0.2) 37%,
+      rgba(var(--shimmer-color), 0.1) 63%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  :global(.dark) {
+    --shimmer-color: 255, 255, 255;
+  }
+
+  :global(.light) {
+    --shimmer-color: 0, 0, 0;
+  }
+</style> 

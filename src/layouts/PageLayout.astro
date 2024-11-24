@@ -1,0 +1,27 @@
+---
+import Layout from './Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<Layout title={title}>
+  <Header />
+  
+  <main class="max-w-4xl mx-auto px-6 py-24">
+    <slot />
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  main {
+    min-height: calc(100vh - 64px - 400px); /* Adjust based on header and footer height */
+  }
+</style> 

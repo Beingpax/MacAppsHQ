@@ -1,0 +1,56 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+
+const seoTitle = "Submit Your Mac App - Mac App Directory";
+const seoDescription = "List your macOS application in our directory. Share your app with our community of Mac users and increase its visibility.";
+---
+
+<PageLayout 
+  title={seoTitle}
+  description={seoDescription}
+  type="website"
+>
+  <div class="prose dark:prose-invert max-w-none mb-8">
+    <h1 class="text-4xl font-bold mb-8">Submit Your App</h1>
+    
+    <p class="text-lg text-gray-600 dark:text-gray-300">
+      Want to list your app in our directory? We're always looking for great Mac applications to share with our community.
+    </p>
+  </div>
+
+  <!-- Form Container -->
+  <div class="w-full bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+    <div class="relative w-full h-[800px]">
+      <iframe 
+        data-tally-src="https://tally.so/r/n0bAl9" 
+        width="100%" 
+        height="100%" 
+        frameborder="0" 
+        marginheight="0" 
+        marginwidth="0" 
+        title="Mac App Listing"
+        class="absolute inset-0"
+      ></iframe>
+    </div>
+  </div>
+</PageLayout>
+
+<script>
+  // Load Tally embed script
+  const script = document.createElement('script');
+  script.src = "https://tally.so/widgets/embed.js";
+  script.async = true;
+  document.head.appendChild(script);
+</script>
+
+<style>
+  /* Ensure iframe container is responsive */
+  iframe {
+    background-color: transparent;
+  }
+
+  /* Dark mode adjustments for iframe */
+  :global(.dark) iframe {
+    filter: invert(0.9) hue-rotate(180deg);
+  }
+</style> 

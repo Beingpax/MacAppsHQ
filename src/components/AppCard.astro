@@ -1,0 +1,146 @@
+---
+import type { App } from '../data/apps';
+import OptimizedImage from './OptimizedImage.astro';
+
+interface Props {
+  app: App;
+}
+
+const { app } = Astro.props;
+---
+
+<a 
+  href={`/${app.slug}`} 
+  class="block w-full group app-card"
+  data-app-name={app.name}
+  data-app-description={app.description}
+  data-app-category={app.category}
+  data-created-at={app.created_at}
+  data-featured={app.featured}
+  data-sort-order={app.sort_order}
+>
+  <div class={`relative h-full transition-all duration-300 rounded-2xl overflow-hidden
+    ${app.featured 
+      ? `
+        p-6
+        bg-gradient-to-br from-blue-100/80 via-white to-purple-100/80
+        dark:from-primary/20 dark:via-gray-800/95 dark:to-purple-900/20
+        border-blue-200/40 dark:border-primary/30
+        shadow-[0_2px_8px_rgba(0,0,0,0.04)]
+        hover:shadow-xl hover:shadow-blue-100/50
+        dark:hover:shadow-primary/20
+        hover:-translate-y-1
+      ` 
+      : `
+        p-5
+        bg-gradient-to-br from-slate-50 via-white to-blue-50
+        dark:from-gray-800/90 dark:via-gray-800/60 dark:to-gray-900
+        border-slate-200 dark:border-gray-700/50
+        shadow-[0_2px_6px_rgba(0,0,0,0.02)]
+        hover:shadow-[0_8px_16px_rgba(0,0,0,0.04)]
+        dark:shadow-gray-950/20
+        hover:-translate-y-0.5
+        hover:border-blue-200/50 dark:hover:border-gray-600/50
+        hover:bg-gradient-to-br hover:from-slate-50 hover:via-white hover:to-blue-100/50
+        dark:hover:from-gray-800/95 dark:hover:via-gray-800/75 dark:hover:to-blue-900/20
+      `
+    }
+    border backdrop-blur-sm
+    transform-gpu`}
+  >
+    <div class="relative flex gap-5">
+      <div class="relative flex-shrink-0">
+        <div class={`
+          relative rounded-2xl overflow-hidden
+          ${app.featured 
+            ? 'p-0.5 bg-gradient-to-br from-blue-300/30 via-primary/30 to-purple-400/30 dark:from-blue-400/30 dark:via-primary/30 dark:to-purple-500/30' 
+            : 'p-0.5 bg-gradient-to-br from-slate-200/80 via-blue-100/30 to-blue-200/50 dark:from-gray-700 dark:via-gray-800 dark:to-blue-900/20'
+          }
+        `}>
+          <OptimizedImage 
+            src={app.icon} 
+            alt={app.name} 
+            width={64}
+            height={64}
+            class={`w-16 h-16 rounded-xl transition-all duration-300
+              ${app.featured 
+                ? 'shadow-sm shadow-blue-200/50 dark:shadow-primary/20 group-hover:scale-110 group-hover:shadow-md' 
+                : 'shadow-sm shadow-slate-200 dark:shadow-gray-950/50 group-hover:scale-105'
+              }
+            `}
+            loading={app.featured ? "eager" : "lazy"}
+          />
+        </div>
+      </div>
+
+      <div class="flex-1 min-w-0">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex flex-col">
+            <div class="flex items-center gap-3">
+              <h3 class={`font-semibold truncate text-base
+                ${app.featured 
+                  ? 'text-gray-900 dark:text-white' 
+                  : 'text-gray-800 dark:text-gray-100'
+                }`}>
+                {app.name}
+              </h3>
+              {app.featured && (
+                <div class="relative flex h-2 w-2">
+                  <span class="animate-pulse-slow absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                </div>
+              )}
+            </div>
+            
+            <p class={`text-xs mt-1 flex items-center gap-2
+              ${app.featured 
+                ? 'text-primary/80 dark:text-primary-light/80 font-medium' 
+                : 'text-gray-500 dark:text-gray-400'
+              }`}>
+              <span class="w-1 h-1 rounded-full bg-current opacity-50"></span>
+              {app.category}
+            </p>
+          </div>
+
+          <span class={`
+            text-xs font-medium px-3 py-1.5 rounded-full whitespace-nowrap
+            transition-all duration-300
+            ${app.featured 
+              ? 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light ring-1 ring-primary/20 dark:ring-primary/30' 
+              : app.price === 'Free' 
+                ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 ring-1 ring-emerald-200/50 dark:ring-emerald-500/20' 
+                : app.price === 'Freemium' 
+                  ? 'bg-violet-50 text-violet-600 dark:bg-violet-500/10 dark:text-violet-400 ring-1 ring-violet-200/50 dark:ring-violet-500/20'
+                  : 'bg-gray-50 text-gray-600 dark:bg-gray-700 dark:text-gray-300 ring-1 ring-gray-200/50 dark:ring-gray-600/30'
+            }
+            group-hover:shadow-sm`}>
+            {app.featured ? 'Featured' : app.price}
+          </span>
+        </div>
+        
+        <p class={`mt-2.5 text-sm leading-relaxed min-h-[2.5rem] line-clamp-2
+          ${app.featured 
+            ? 'text-gray-600 dark:text-gray-300' 
+            : 'text-gray-500 dark:text-gray-400'
+          }`}>
+          {app.description}
+        </p>
+      </div>
+    </div>
+  </div>
+</a>
+
+<style>
+  @keyframes pulse-slow {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0; }
+  }
+
+  .animate-pulse-slow {
+    animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .app-card {
+    isolation: isolate;
+  }
+</style>

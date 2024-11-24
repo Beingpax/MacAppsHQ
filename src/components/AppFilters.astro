@@ -1,0 +1,168 @@
+---
+interface Props {
+  totalApps: number;
+  newAppsCount: number;
+}
+
+const { totalApps, newAppsCount } = Astro.props;
+---
+
+<div class="flex items-center gap-3 mb-8">
+  <div class="flex items-center gap-3">
+    <button
+      type="button"
+      class="filter-btn active px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300
+        bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary"
+      data-filter="all"
+    >
+      All Apps
+    </button>
+    
+    <button
+      type="button"
+      class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300
+        text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800
+        relative group"
+      data-filter="latest"
+    >
+      Latest
+      {newAppsCount > 0 && (
+        <span class="absolute -top-2 -right-2 flex items-center">
+          <span class="px-2 py-0.5 text-xs rounded-full 
+            bg-green-500 text-white dark:bg-green-400 dark:text-gray-900
+            shadow-sm shadow-green-500/20 
+            ring-2 ring-white dark:ring-gray-900">
+            New
+          </span>
+        </span>
+      )}
+    </button>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="relative flex-1 max-w-xs">
+    <input
+      type="text"
+      id="searchInput"
+      placeholder="Search apps..."
+      class="w-full px-4 py-2 rounded-xl text-sm
+        bg-white dark:bg-gray-800 
+        text-gray-900 dark:text-white
+        border border-gray-200 dark:border-gray-700/50
+        focus:border-primary/30 dark:focus:border-primary/30
+        focus:ring-2 focus:ring-primary/20 dark:focus:ring-primary/20
+        placeholder-gray-500 dark:placeholder-gray-400
+        shadow-sm hover:shadow-md
+        transition-all duration-300"
+    />
+    <div class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none">
+      <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-xs bg-gray-100 dark:bg-gray-700/50 rounded">/</kbd>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { debounce } from '../utils/debounce';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    let currentFilter = 'all';
+
+    // Debounced search handler
+    const handleSearch = debounce((query: string) => {
+      dispatchFilterEvent('search', query);
+    }, 300);
+
+    searchInput?.addEventListener('input', (e) => {
+      const query = (e.target as HTMLInputElement).value.trim();
+      handleSearch(query);
+    });
+
+    // Handle filter button clicks
+    filterButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        // Reset search when clicking filters
+        if (searchInput) {
+          searchInput.value = '';
+        }
+
+        // Update button states
+        filterButtons.forEach(btn => btn.classList.remove('active', 'bg-primary/10', 'text-primary', 'dark:bg-primary/20'));
+        button.classList.add('active', 'bg-primary/10', 'text-primary', 'dark:bg-primary/20');
+
+        // Update current filter and dispatch event
+        currentFilter = button.getAttribute('data-filter') || 'all';
+        dispatchFilterEvent(currentFilter);
+      });
+    });
+
+    // Handle search input
+    if (searchInput) {
+      // Handle keyboard shortcuts
+      document.addEventListener('keydown', (e) => {
+        if (e.key === '/' && document.activeElement !== searchInput) {
+          e.preventDefault();
+          searchInput.focus();
+        }
+        if (e.key === 'Escape' && document.activeElement === searchInput) {
+          searchInput.value = '';
+          searchInput.blur();
+          resetToAll();
+        }
+      });
+
+      // Handle search input
+      searchInput.addEventListener('input', () => {
+        const query = searchInput.value.trim();
+        
+        if (!query) {
+          resetToAll();
+          return;
+        }
+
+        // Remove active state from filter buttons
+        filterButtons.forEach(btn => {
+          btn.classList.remove('active', 'bg-primary/10', 'text-primary', 'dark:bg-primary/20');
+        });
+
+        // Dispatch search event
+        dispatchFilterEvent('search', query);
+      });
+    }
+
+    function resetToAll() {
+      const allButton = document.querySelector('[data-filter="all"]');
+      if (allButton) {
+        filterButtons.forEach(btn => btn.classList.remove('active', 'bg-primary/10', 'text-primary', 'dark:bg-primary/20'));
+        allButton.classList.add('active', 'bg-primary/10', 'text-primary', 'dark:bg-primary/20');
+      }
+      dispatchFilterEvent('all');
+    }
+
+    function dispatchFilterEvent(filter: string, searchQuery: string = '') {
+      const event = new CustomEvent('filterChanged', {
+        detail: { filter, searchQuery }
+      });
+      document.dispatchEvent(event);
+    }
+  });
+</script>
+
+<style>
+  .filter-btn.active {
+    position: relative;
+  }
+
+  .filter-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: currentColor;
+    opacity: 0.5;
+    border-radius: 1px;
+  }
+</style> 
