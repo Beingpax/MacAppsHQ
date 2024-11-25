@@ -1,5 +1,5 @@
 // Counter.dev analytics
-const counter = () => {
+const counter = async () => {
   const hostname = window.location.hostname;
   const pathname = window.location.pathname;
   const referrer = document.referrer;
@@ -9,7 +9,7 @@ const counter = () => {
   const counterId = "4639239d-b0a6-454b-aeb6-fe6d9010c192";
 
   try {
-    fetch("/api/counter", {
+    const response = await fetch("/api/counter", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -24,6 +24,10 @@ const counter = () => {
         utcoffset: utcOffset,
       }),
     });
+
+    if (!response.ok) {
+      throw new Error(`Analytics request failed: ${response.status}`);
+    }
   } catch (error) {
     console.error("Counter tracking failed:", error);
   }

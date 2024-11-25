@@ -1,0 +1,14 @@
+/* Add your critical CSS here */
+:root {
+  --primary: #007AFF;
+  --primary-light: #409CFF;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+} 
